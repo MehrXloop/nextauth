@@ -4,7 +4,6 @@ import SigninButton from './SigninButton'
 const Appbar = () => {
   return (
     <nav>
-        <SigninButton/>
     </nav>
   )
 }

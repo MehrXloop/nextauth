@@ -1,7 +1,12 @@
+import SigninButton from './components/SigninButton'
 
 
 export default function Home() {
   return (
-   <h1>homepage</h1>
+    <div>
+      <h1>Home</h1>
+      <h2>Sign In Methods:</h2>
+      <SigninButton/>
+    </div>
   )
 }
