@@ -7,8 +7,9 @@ import { signOut, useSession } from 'next-auth/react';
 const Dashboard = () => {
     const { data: session } = useSession()
 
-    function handleSignOut() {
-        signOut({ callbackUrl: "http://localhost:3000/" });
+    const handleSignOut = async () => {
+        await signOut({ redirect: true, callbackUrl: 'http://localhost:3000/' });
+        localStorage.clear();
     }
     if (session && session.user) {
         console.log(session.user)
@@ -27,5 +28,6 @@ const Dashboard = () => {
         )
     }
 }
+
 
 export default Dashboard

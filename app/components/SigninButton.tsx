@@ -17,7 +17,11 @@ const SigninButton = () => {
     function handleLinkedinSignIn() {
         signIn('linkedin', { redirect: true, callbackUrl: "http://localhost:3000/dashboard", prompt: 'consent' })
     }
+    function handleMicrosoftSignIn() {
+        signIn('azure-ad', { redirect: true, callbackUrl: "http://localhost:3000/dashboard", prompt: 'consent' })
+    }
 
+    
     // if (session && session.user) {
     //     console.log(session.user)
     //     return (
@@ -40,6 +44,9 @@ const SigninButton = () => {
             <br />
             <br />
             <button onClick={handleLinkedinSignIn} style={{ backgroundColor: 'yellowgreen', color: 'white' }}>Sign In With Linkedin</button>
+            <br />
+            <br />
+            <button onClick={handleMicrosoftSignIn} style={{ backgroundColor: 'orange', color: 'white' }}>Sign In With Microsoft</button>
         </>
     )
 }
