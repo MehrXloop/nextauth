@@ -21,9 +21,35 @@ const handler = NextAuth({
         AzureADProvider({
          clientId: process.env.AZURE_AD_CLIENT_ID??"",
          clientSecret: process.env.AZURE_AD_CLIENT_SECRET??"",
+         authorization: {
+            params: { scope: 'openid email profile User.Read offline_access Calendars.ReadWrite' },
+          },
+          httpOptions: { timeout: 10000 },
          // tenantId: process.env.AZURE_AD_TENANT_ID??"",
        }),
     ],
+    callbacks: {
+      async jwt({ token, user, account }) {
+         if (account && user) {
+           return {
+             accessToken: account.access_token,
+             accessTokenExpires: account?.expires_at
+               ? account.expires_at * 1000
+               : 0,
+             refreshToken: account.refresh_token,
+             user,
+           };
+         }
+         return token;
+       },
+       async session({ session, token }) {
+         if (session) {
+           session.user = token.user as any;
+           session.accessToken = token.accessToken as any;
+         }
+         return session;
+       },
+    },
 });
 
 
