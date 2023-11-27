@@ -1,13 +1,24 @@
 'use client'
 import { signIn, signOut, useSession } from 'next-auth/react'
 import React from 'react'
-import Image from 'next/image'
-import Cookies from 'js-cookie';
+import { FaLinkedin, FaGoogle, FaFacebook, FaMicrosoft } from 'react-icons/fa';
+import {
+    Button,
+    VStack,
+    HStack,
+    Input,
+    Heading,
+    FormControl,
+    FormLabel,
+    Box
+} from '@chakra-ui/react';
+
+
 
 const SigninButton = () => {
     const { data: session } = useSession()
 
-   
+
     function handleGoogleSignIn() {
         signIn('google', { redirect: true, callbackUrl: "http://localhost:3000/dashboard", prompt: 'consent' })
     }
@@ -21,7 +32,7 @@ const SigninButton = () => {
         signIn('azure-ad', { redirect: true, callbackUrl: "http://localhost:3000/dashboard", prompt: 'login' })
     }
 
-    
+
     // if (session && session.user) {
     //     console.log(session.user)
     //     return (
@@ -36,18 +47,56 @@ const SigninButton = () => {
     //     )
     // }
     return (
-        <>
-            <button onClick={handleGoogleSignIn} style={{ backgroundColor: 'orangered', color: 'white' }}>Sign In With Google</button>
-            <br />
-            <br />
-            <button onClick={handleFacebookSignIn} style={{ backgroundColor: 'blue', color: 'white' }}>Sign In With Facebook</button>
-            <br />
-            <br />
-            <button onClick={handleLinkedinSignIn} style={{ backgroundColor: 'yellowgreen', color: 'white' }}>Sign In With Linkedin</button>
-            <br />
-            <br />
-            <button onClick={handleMicrosoftSignIn} style={{ backgroundColor: 'orange', color: 'white' }}>Sign In With Microsoft</button>
-        </>
+        <VStack spacing={8} align="center" my='10'>
+            <Heading as="h2" size="xl">
+                Sign In
+            </Heading>
+            <VStack spacing={4}>
+                <FormControl>
+                    <FormLabel>Username</FormLabel>
+                    <Input type="text" placeholder="Enter username" />
+                </FormControl>
+                <FormControl>
+                    <FormLabel>Password</FormLabel>
+                    <Input type="password" placeholder="Enter password" />
+                </FormControl>
+                <Box width="100%">
+                    <Button
+                        colorScheme="blue"
+                        variant="solid"
+                        width="100%"
+                    >
+                    Sign In
+                    </Button>
+                </Box>
+            </VStack>
+            <HStack spacing={4}>
+                <Button
+                    onClick={handleGoogleSignIn}
+                    colorScheme="red"
+                    variant="solid"
+                    justifyContent="center"
+                ><FaGoogle /></Button>
+                <Button
+                    onClick={handleFacebookSignIn}
+                    colorScheme="blue"
+                    variant="solid"
+                    justifyContent="center"
+                ><FaFacebook /></Button>
+                <Button
+                    onClick={handleLinkedinSignIn}
+                    colorScheme="green"
+                    variant="solid"
+                    justifyContent="center"
+                ><FaLinkedin /></Button>
+                <Button
+                    onClick={handleMicrosoftSignIn}
+                    colorScheme="orange"
+                    variant="solid"
+                    justifyContent="center"
+                ><FaMicrosoft /></Button>
+            </HStack>
+        </VStack>
     )
 }
 

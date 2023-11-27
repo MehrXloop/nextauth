@@ -1,6 +1,25 @@
 'use client'
 import React, { useState } from 'react';
 import { useSession } from 'next-auth/react';
+import {
+  Box,
+  Heading,
+  Input,
+  Textarea,
+  Select,
+  Button,
+  FormControl,
+  FormLabel,
+  Table,
+  Thead,
+  Tbody,
+  Tr,
+  Th,
+  Td,
+  IconButton
+} from '@chakra-ui/react';
+import { DeleteIcon } from '@chakra-ui/icons';
+
 
 enum AttendeeType {
   REQUIRED = 'required',
@@ -94,7 +113,7 @@ const CalendarEvent = () => {
     setAdditionalAttendees([{ name: '', email: '', type: AttendeeType.REQUIRED }]);
   };
 
-  const handleSubmit = async (e:React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     const accessToken = session?.accessToken;
 
@@ -140,7 +159,7 @@ const CalendarEvent = () => {
       if (response.ok) {
         const createdEvent = await response.json();
         if (onlineMeeting) {
-         let meetingUrl = createdEvent.onlineMeeting?.joinUrl || ''; 
+          let meetingUrl = createdEvent.onlineMeeting?.joinUrl || '';
           console.log('Meeting URL:', meetingUrl);
         }
         resetForm()
@@ -155,121 +174,152 @@ const CalendarEvent = () => {
     }
   };
 
+  const handleDeleteAttendee = (index: number) => {
+    const updatedAttendees = [...additionalAttendees];
+    updatedAttendees.splice(index, 1);
+    setAdditionalAttendees(updatedAttendees);
+  };
+
+
   return (
-    <div>
-      <h1>Create an event</h1>
+    <Box maxW="700px" mx="auto" mt="4">
+      <Heading mb="4" textAlign='center'>Create Meeting Schedule</Heading>
       <form onSubmit={handleSubmit}>
-        <label>
-          Subject:
-          <input
+        <FormControl mb="4">
+          <FormLabel>Subject</FormLabel>
+          <Input
             type="text"
             name="subject"
             value={subject}
             onChange={handleChange}
             required
           />
-        </label>
-        <label>
-          Date:
-          <input
+        </FormControl>
+        <FormControl mb="4">
+          <FormLabel>Date</FormLabel>
+          <Input
             type="date"
             name="date"
             value={date}
             onChange={handleChange}
             required
           />
-        </label>
-        <label>
-          Start Time:
-          <input
+        </FormControl>
+        <FormControl mb="4">
+          <FormLabel>Start Time</FormLabel>
+          <Input
             type="time"
             name="startTime"
             value={startTime}
             onChange={handleChange}
             required
           />
-        </label>
-        <label>
-          End Time:
-          <input
+        </FormControl>
+        <FormControl mb="4">
+          <FormLabel>End Time</FormLabel>
+          <Input
             type="time"
             name="endTime"
             value={endTime}
             onChange={handleChange}
             required
           />
-        </label>
-        <label>
-          Body Content:
-          <textarea
+        </FormControl>
+        <FormControl mb="4">
+          <FormLabel>Body Content</FormLabel>
+          <Textarea
             name="content"
             value={content}
             onChange={handleChange}
           />
-        </label>
-        <label>
-          Meeting Type:
-          <select
+        </FormControl>
+        <FormControl mb="4">
+          <FormLabel>Meeting Type</FormLabel>
+          <Select
             name="meetingType"
             onChange={handleMeetingTypeChange}
             defaultValue="online"
           >
             <option value="online">Online</option>
             <option value="onPremise">On Premise</option>
-          </select>
-        </label>
+          </Select>
+        </FormControl>
         {!onlineMeeting && (
-          <label>
-            Meeting Address:
-            <input
+          <FormControl mb="4">
+            <FormLabel>Meeting Address</FormLabel>
+            <Input
               type="text"
               name="meetingAddress"
               value={meetingAddress}
               onChange={handleChange}
               required
             />
-          </label>
+          </FormControl>
         )}
-        {additionalAttendees.map((attendee, index) => (
-          <div key={index}>
-            <label>
-              Attendee {index + 1} Name:
-              <input
-                type="text"
-                name="name"
-                value={attendee.name}
-                onChange={(e) => handleAttendeeChange(index, e)}
-              />
-            </label>
-            <label>
-              Attendee {index + 1} Email:
-              <input
-                type="email"
-                name="email"
-                value={attendee.email}
-                onChange={(e) => handleAttendeeChange(index, e)}
-                required
-              />
-            </label>
-            <label>
-              Attendee {index + 1} Type:
-              <select
-                name="type"
-                value={attendee.type}
-                onChange={(e) => handleAttendeeChange(index, e)}
-              >
-                <option value={AttendeeType.REQUIRED}>Required</option>
-                <option value={AttendeeType.OPTIONAL}>Optional</option>
-              </select>
-            </label>
-          </div>
-        ))}
-        <button type="button" onClick={handleAddAttendee}>
+        <Heading as='h5' size='md' mt='10'>
+          Attendees:
+        </Heading>
+        <Table variant='simple' mb="4">
+          <Thead>
+            <Tr>
+              <Th>Name</Th>
+              <Th>Email</Th>
+              <Th>Type</Th>
+              <Th></Th>
+            </Tr>
+          </Thead>
+          <Tbody>
+            {additionalAttendees.map((attendee, index) => (
+              <Tr key={index}>
+                <Td>
+                  <Input
+                    type="text"
+                    name="name"
+                    value={attendee.name}
+                    onChange={(e) => handleAttendeeChange(index, e)}
+                  />
+                </Td>
+                <Td>
+                  <Input
+                    type="email"
+                    name="email"
+                    value={attendee.email}
+                    onChange={(e) => handleAttendeeChange(index, e)}
+                    required
+                  />
+                </Td>
+                <Td>
+                  <Select
+                    width={120}
+                    name="type"
+                    value={attendee.type}
+                    onChange={(e) => handleAttendeeChange(index, e)}
+                  >
+                    <option value={AttendeeType.REQUIRED}>Required</option>
+                    <option value={AttendeeType.OPTIONAL}>Optional</option>
+                  </Select>
+                </Td>
+                <Td>
+                  {index !== 0 && (
+                    <IconButton
+                      aria-label="Delete Attendee"
+                      icon={<DeleteIcon />}
+                      onClick={() => handleDeleteAttendee(index)}
+                    />
+                  )}
+                </Td>
+              </Tr>
+            ))}
+          </Tbody>
+        </Table>
+        <Button colorScheme='blue' mb="4" type="button" onClick={handleAddAttendee}>
           + Add Attendee
-        </button>
-        <button type="submit">Create Event</button>
+        </Button>
+        <Box>
+          <Button colorScheme='blue' type="submit">Create Event</Button>
+        </Box>
       </form>
-    </div>
+    </Box>
   );
 };
 

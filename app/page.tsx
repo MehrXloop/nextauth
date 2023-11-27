@@ -1,11 +1,10 @@
 import SigninButton from './components/SigninButton'
+import { ChakraProvider } from '@chakra-ui/react'
+import { AppProps } from 'next/app'
 
-
-export default function Home() {
+export default function Home({ Component, pageProps }: AppProps) {
   return (
     <div>
-      <h1>Home</h1>
-      <h2>Sign In Methods:</h2>
       <SigninButton/>
     </div>
   )
