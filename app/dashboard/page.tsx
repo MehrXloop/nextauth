@@ -2,7 +2,7 @@
 import React from 'react'
 import Image from 'next/image'
 import { signOut, useSession } from 'next-auth/react';
-
+import { Button } from '@chakra-ui/react';
 
 const Dashboard = () => {
     const { data: session } = useSession()
@@ -13,7 +13,7 @@ const Dashboard = () => {
     }
     if (session && session.user) {
         console.log(session.user)
-        console.log({'token':session.accessToken})
+        console.log({ 'token': session.accessToken })
         return (
             <>
                 <h1>Dashboard</h1>
@@ -23,11 +23,11 @@ const Dashboard = () => {
                 {session.user.image && typeof session.user.image === 'string' && (
                     <Image src={session.user.image} width={100} height={100} alt='user image' />
                 )}
+                <Button onClick={handleSignOut} colorScheme='red' mb="4" mt="4" type="button" >
+                    sign out
+                </Button>
                 <br />
-                <button onClick={handleSignOut} style={{ backgroundColor: 'crimson', color: 'white' }}>sign out</button>
-                <br />
-                <br />
-                <a href="/calenderEvent"  style={{ textDecoration:'none', color: 'skyblue' }}>Create a calender event</a>
+                <a href="/calenderEvent" style={{ textDecoration: 'none', color: 'skyblue' }}>Create a calender event</a>
 
             </>
         )
