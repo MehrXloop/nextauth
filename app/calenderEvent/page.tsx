@@ -33,6 +33,7 @@ interface Attendee {
 }
 
 const CalendarEvent = () => {
+  const [isLoading, setIsLoading] = useState(false);
   const [subject, setSubject] = useState('');
   const [date, setDate] = useState('');
   const [startTime, setStartTime] = useState('');
@@ -115,6 +116,8 @@ const CalendarEvent = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    setIsLoading(true); 
+
     const accessToken = session?.accessToken;
 
     // Create ISO format date-time strings from date, startTime, and endTime
@@ -171,6 +174,8 @@ const CalendarEvent = () => {
     } catch (error) {
       console.error('Error creating event with description:', error);
       // Handle any other errors that might occur during the process
+    }finally {
+      setIsLoading(false); // Disable loading state once event creation is complete
     }
   };
 
@@ -316,7 +321,7 @@ const CalendarEvent = () => {
           + Add Attendee
         </Button>
         <Box>
-          <Button colorScheme='blue' type="submit">Create Event</Button>
+          <Button colorScheme='blue' type="submit" isLoading={isLoading}>Create Event</Button>
         </Box>
       </form>
     </Box>
