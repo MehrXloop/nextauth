@@ -25,6 +25,9 @@ const Dashboard = () => {
                 )}
                 <br />
                 <button onClick={handleSignOut} style={{ backgroundColor: 'crimson', color: 'white' }}>sign out</button>
+                <br />
+                <br />
+                <a href="/calenderEvent" style={{ textDecoration:'none', color: 'skyblue' }}>Create a calender event</a>
 
             </>
         )

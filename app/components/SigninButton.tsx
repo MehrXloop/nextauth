@@ -18,7 +18,7 @@ const SigninButton = () => {
         signIn('linkedin', { redirect: true, callbackUrl: "http://localhost:3000/dashboard", prompt: 'consent' })
     }
     function handleMicrosoftSignIn() {
-        signIn('azure-ad', { redirect: true, callbackUrl: "http://localhost:3000/dashboard", prompt: 'consent' })
+        signIn('azure-ad', { redirect: true, callbackUrl: "http://localhost:3000/dashboard", prompt: 'login' })
     }
 
     
