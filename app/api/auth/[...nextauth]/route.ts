@@ -22,7 +22,7 @@ const handler = NextAuth({
          clientId: process.env.AZURE_AD_CLIENT_ID??"",
          clientSecret: process.env.AZURE_AD_CLIENT_SECRET??"",
          authorization: {
-            params: { scope: 'openid email profile User.Read offline_access Calendars.ReadWrite' },
+            params: { scope: 'openid email profile User.Read offline_access Calendars.ReadWrite Calendars.Read Calendars.Read.Shared Calendars.ReadWrite.Shared' },
           },
           httpOptions: { timeout: 10000 },
          // tenantId: process.env.AZURE_AD_TENANT_ID??"",
@@ -34,7 +34,7 @@ const handler = NextAuth({
            return {
              accessToken: account.access_token,
              accessTokenExpires: account?.expires_at
-               ? account.expires_at * 1000
+               ? account.expires_at * 24000
                : 0,
              refreshToken: account.refresh_token,
              user,

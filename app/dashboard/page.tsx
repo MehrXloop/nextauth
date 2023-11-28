@@ -2,6 +2,7 @@
 import React from 'react'
 import Image from 'next/image'
 import { signOut, useSession } from 'next-auth/react';
+import OutlookCalendar from '../components/OutlookCalender';
 import { Button } from '@chakra-ui/react';
 
 const Dashboard = () => {
@@ -27,7 +28,10 @@ const Dashboard = () => {
                     sign out
                 </Button>
                 <br />
-                <a href="/calenderEvent" style={{ textDecoration: 'none', color: 'skyblue' }}>Create a calender event</a>
+                
+                <a href="/calender" style={{ textDecoration: 'none', color: 'black' }}>View your calendar</a>
+                <br />
+                <a href="/calenderEvent" style={{ textDecoration: 'none', color: 'black' }}>Create a calendar event</a>
 
             </>
         )
