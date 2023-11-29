@@ -1,20 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import FullCalendar from '@fullcalendar/react';
-import dayGridPlugin from '@fullcalendar/daygrid';
-import timeGridPlugin from '@fullcalendar/timegrid';
-import interactionPlugin from '@fullcalendar/interaction';
+import { Calendar, momentLocalizer } from 'react-big-calendar';
+import 'react-big-calendar/lib/css/react-big-calendar.css';
 import moment from 'moment';
-import 'moment-timezone'; 
+import 'moment-timezone';
 
 interface CalendarEvent {
     title: string;
-    start: string;
-    end: string;
+    start: Date;
+    end: Date;
 }
 
 interface OutlookCalendarProps {
     accessToken: string;
 }
+
+const mLocalizer = momentLocalizer(moment);
 
 const OutlookCalendar: React.FC<OutlookCalendarProps> = ({ accessToken }) => {
     const [events, setEvents] = useState<CalendarEvent[]>([]);
@@ -22,7 +22,8 @@ const OutlookCalendar: React.FC<OutlookCalendarProps> = ({ accessToken }) => {
     const fetchEventsForMonth = async (start: Date, end: Date) => {
         try {
             let allEvents: CalendarEvent[] = [];
-            let url = `https://graph.microsoft.com/v1.0/me/calendarview` +
+            let url =
+                `https://graph.microsoft.com/v1.0/me/calendarview` +
                 `?startDateTime=${start.toISOString()}` +
                 `&endDateTime=${end.toISOString()}`;
 
@@ -37,15 +38,15 @@ const OutlookCalendar: React.FC<OutlookCalendarProps> = ({ accessToken }) => {
                     const data = await response.json();
                     const parsedEvents: CalendarEvent[] = data.value.map((event: any) => ({
                         title: event.subject,
-                        start: moment.utc(event.start.dateTime).tz('Asia/Karachi').format(),
-                        end: moment.utc(event.end.dateTime).tz('Asia/Karachi').format(),
+                        start: moment.utc(event.start.dateTime).tz('Asia/Karachi').toDate(),
+                        end: moment.utc(event.end.dateTime).tz('Asia/Karachi').toDate(),
                     }));
                     allEvents = allEvents.concat(parsedEvents);
 
-                    if (!data["@odata.nextLink"]) {
+                    if (!data['@odata.nextLink']) {
                         break; // No more pages, exit loop
                     } else {
-                        url = data["@odata.nextLink"]; // Get the next page URL
+                        url = data['@odata.nextLink']; // Get the next page URL
                     }
                 } else {
                     console.error('Failed to fetch calendar events:', response.statusText);
@@ -59,10 +60,18 @@ const OutlookCalendar: React.FC<OutlookCalendarProps> = ({ accessToken }) => {
         }
     };
 
-    const handleDatesSet = (info: any) => {
-        const startOfMonth = moment(info.startStr).startOf('month').toDate();
-        const endOfMonth = moment(info.endStr).endOf('month').toDate();
-        fetchEventsForMonth(startOfMonth, endOfMonth);
+    const handleDatesSet = (range: Date[] | { start: Date; end: Date }) => {
+        if (Array.isArray(range)) {
+            // Handle the case when an array of dates is received (in case of day view)
+            const startOfMonth = moment(range[0]).startOf('month').toDate();
+            const endOfMonth = moment(range[range.length - 1]).endOf('month').toDate();
+            fetchEventsForMonth(startOfMonth, endOfMonth);
+        } else {
+            // Handle the case when an object with start and end dates is received
+            const startOfMonth = moment(range.start).startOf('month').toDate();
+            const endOfMonth = moment(range.end).endOf('month').toDate();
+            fetchEventsForMonth(startOfMonth, endOfMonth);
+        }
     };
 
     useEffect(() => {
@@ -74,23 +83,26 @@ const OutlookCalendar: React.FC<OutlookCalendarProps> = ({ accessToken }) => {
         }
     }, [accessToken]);
 
+    // const ColoredDateCellWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => (
+    //     React.cloneElement(React.Children.only(children) as React.ReactElement, {
+    //       style: {
+    //         backgroundColor: 'lightblue',
+    //       },
+    //     })
+    //   );
+
     return (
         <div style={{ width: '90vw', margin: 'auto' }}>
-            <FullCalendar
-                plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-                height={"90vh"}
-                headerToolbar={{
-                    start: "today prev,next",
-                    center: "title",
-                    end: "dayGridMonth,timeGridWeek,timeGridDay",
-                }}
-                initialDate="2023-11-01"
-                timeZone="Asia/Karachi"
-                initialView='dayGridMonth'
-                datesSet={(info: any) => handleDatesSet(info)}
-                nowIndicator={true}
+            <Calendar
+                localizer={mLocalizer}
                 events={events}
-            // eventBackgroundColor="#b1f1d2"
+                startAccessor="start"
+                endAccessor="end"
+                style={{ height: '90vh' }}
+                views={['month', 'week', 'day']}
+                toolbar={true}
+                // eventPropGetter={ColoredDateCellWrapper}
+                onRangeChange={(range) => handleDatesSet(range)}
             />
         </div>
     );
