@@ -1,15 +1,17 @@
 /* Basic styling for the event popover */
 .popover {
-    position: fixed;
-    top: 0;
-    left: 0;
-    transform: translate(-50%, -50%);
+    position: absolute;
     z-index: 1000;
     background-color: #fff;
     border: 1px solid #ccc;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     padding: 20px;
-    max-width: 300px;
+    max-width: 400px;
+    display: none; /* Initially hide the popover */
+}
+
+.popover.active {
+    display: block; /* Show the popover when active */
 }
 
 .popover h5 {

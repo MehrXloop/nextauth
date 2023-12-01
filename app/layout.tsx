@@ -5,6 +5,8 @@ import './globals.css'
 import Providers from './components/Providers'
 import Chakra from './components/Chakra'
 import "react-big-calendar/lib/css/react-big-calendar.css"
+import 'bootstrap/dist/css/bootstrap.min.css';
+
 
 const inter = Inter({ subsets: ['latin'] })
 
