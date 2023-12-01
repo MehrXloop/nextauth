@@ -5,9 +5,10 @@ import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import moment from 'moment';
 import 'moment-timezone';
+import { access } from 'fs';
 
 interface CalendarEvent {
-    occurrenceId:string
+    eventId: string
     title: string;
     start: string;
     end: string;
@@ -40,16 +41,16 @@ const OutlookCalendar: React.FC<OutlookCalendarProps> = ({ accessToken }) => {
 
                 if (response.ok) {
                     const data = await response.json();
-                    // console.log(data)
+                    // console.log(data.value.id)
                     // if (data && data.value) {
                     //     data.value.forEach((event: EventFromGraphAPI) => {
                     //         if (event && event.id) {
                     //             console.log('Event ID:', event.id);
                     //         }
                     //     });
-                    // }
+
                     const parsedEvents: CalendarEvent[] = data.value.map((event: any) => ({
-                        occurrenceId:`OID.${event.occurrenceId}.`,
+                        eventId: event.id,
                         title: event.subject,
                         start: moment.utc(event.start.dateTime).tz('Asia/Karachi').format(),
                         end: moment.utc(event.end.dateTime).tz('Asia/Karachi').format(),
@@ -89,8 +90,46 @@ const OutlookCalendar: React.FC<OutlookCalendarProps> = ({ accessToken }) => {
     }, []);
 
     const handleEventClick = (clickInfo: any) => {
-       // Assuming event ID is in 'extendedProps'
-        console.log(clickInfo);
+        const eventId = clickInfo.event._def.extendedProps.eventId;
+
+        // Confirm cancellation with the user
+        const confirmCancellation = window.confirm("Do you want to cancel the event?");
+
+        if (confirmCancellation) {
+            // Prompt for cancellation message
+            const cancelMessage = window.prompt("Please provide a cancellation message:");
+
+            // Check if cancelMessage is not null (user didn't cancel prompt)
+            if (cancelMessage !== null) {
+                // Make API call to cancel event
+                const url = `https://graph.microsoft.com/v1.0/me/events/${eventId}/cancel`;
+                const cancelAccessToken = accessToken; // Use a different variable name
+
+
+                fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${cancelAccessToken}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ comment: cancelMessage })
+                })
+                    .then(response => {
+                        if (response.ok) {
+                            console.log("Event cancellation successful!");
+                            const updatedEvents = events.filter(event => event.eventId !== eventId);
+                            setEvents(updatedEvents); // Update the state
+                        } else {
+                            console.error("Event cancellation failed:", response.statusText);
+                            // Handle failure, show error message, etc.
+                        }
+                    })
+                    .catch(error => {
+                        console.error("Error occurred during cancellation:", error);
+                        // Handle any other errors
+                    });
+            }
+        }
     };
 
 
