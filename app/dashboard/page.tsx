@@ -29,7 +29,7 @@ const Dashboard = () => {
                 </Button>
                 <br />
                 
-                <a href="/calender" style={{ textDecoration: 'none', color: 'black' }}>View your calendar</a>
+                <a href="/calendar" style={{ textDecoration: 'none', color: 'black' }}>View your calendar</a>
                 <br />
                 <a href="/calenderEvent" style={{ textDecoration: 'none', color: 'black' }}>Create a calendar event</a>
 

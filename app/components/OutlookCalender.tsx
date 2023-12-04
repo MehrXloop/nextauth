@@ -18,11 +18,20 @@ interface CalendarEvent {
     organizer: {
         emailAddress: string;
     };
+    attendees: Attendee[];
     onlineMeeting: string;
     bodyPreview: string;
     title: string;
     start: string;
     end: string;
+}
+
+interface Attendee {
+    emailAddress: {
+        name: string;
+        address: string;
+    };
+    status: string;
 }
 
 interface OutlookCalendarProps {
@@ -54,25 +63,21 @@ const OutlookCalendar: React.FC<OutlookCalendarProps> = ({ accessToken }) => {
                 if (response.ok) {
                     const data = await response.json();
                     // console.log(data)
-                    // if (data && data.value) {
-                    //     data.value.forEach((event: EventFromGraphAPI) => {
-                    //         if (event && event.id) {
-                    //             console.log('Event ID:', event.id);
-                    //         }
-                    //     });
-
-                    const parsedEvents: CalendarEvent[] = data.value.map((event: any) => ({
-                        eventId: event.id,
-                        isOrganizer: event.isOrganizer,
-                        organizer: {
-                            emailAddress: event.organizer.emailAddress,
-                        },
-                        bodyPreview: event.bodyPreview,
-                        onlineMeeting: event.onlineMeeting,
-                        title: event.subject,
-                        start: moment.utc(event.start.dateTime).tz('Asia/Karachi').format(),
-                        end: moment.utc(event.end.dateTime).tz('Asia/Karachi').format(),
-                    }));
+                    const parsedEvents: CalendarEvent[] = data.value.map((event: any) => {
+                        return {
+                            eventId: event.id,
+                            isOrganizer: event.isOrganizer,
+                            organizer: {
+                                emailAddress: event.organizer.emailAddress,
+                            },
+                            attendees: event.attendees,
+                            bodyPreview: event.bodyPreview,
+                            onlineMeeting: event.onlineMeeting,
+                            title: event.subject,
+                            start: moment.utc(event.start.dateTime).tz('Asia/Karachi').format(),
+                            end: moment.utc(event.end.dateTime).tz('Asia/Karachi').format(),
+                        };
+                    });
                     allEvents = allEvents.concat(parsedEvents);
 
                     if (!data["@odata.nextLink"]) {
@@ -110,14 +115,14 @@ const OutlookCalendar: React.FC<OutlookCalendarProps> = ({ accessToken }) => {
     // Function to handle opening the modal and setting clicked event info
     const handleEventClick = (clickInfo: any) => {
         setClickedEventInfo(clickInfo);
-        console.log(clickInfo.event._def.extendedProps.bodyPreview)
-        setIsModalOpen(true); // Open the modal
+        console.log(clickInfo.event._def.extendedProps.attendees)
+        setIsModalOpen(true);
     };
 
     // Function to close the modal
     const handleCloseModal = () => {
         setIsModalOpen(false);
-        setClickedEventInfo(null); // Reset clicked event info
+        setClickedEventInfo(null);
     };
 
     function cancelEvent() {
@@ -153,13 +158,9 @@ const OutlookCalendar: React.FC<OutlookCalendarProps> = ({ accessToken }) => {
         }
     }
 
-
-
-
     function joinMeeting(url: string) {
         window.open(url, '_blank');
     }
-
 
     function editEvent(id: string) {
         console.log('edit button clicked', id)
@@ -172,7 +173,8 @@ const OutlookCalendar: React.FC<OutlookCalendarProps> = ({ accessToken }) => {
 
         return `${startDate} ${startTime} - ${endTime}`;
     }
-    const extractBodyContent = (bodyPreview:string) => {
+
+    const extractBodyContent = (bodyPreview: string) => {
         // Split by '___' delimiter
         const parts = bodyPreview.split('___');
 
@@ -183,6 +185,30 @@ const OutlookCalendar: React.FC<OutlookCalendarProps> = ({ accessToken }) => {
 
         return bodyPreview; // Return the original preview if '___' is not found
     };
+
+    const EventAttendees = (attendees: any) => {
+        const attendeesStatus = attendees.map((attendee: any) => {
+            const status = attendee.status.response === 'accepted' ? 'accepted' : "didn't respond";
+            return `${attendee.emailAddress.name} ${status}`;
+        }).join(', ');
+
+        return attendeesStatus;
+    }
+
+
+    const calculateAttendeeStatus = (attendees: any) => {
+        const acceptedAttendees = attendees.filter((attendee: any) => attendee.status.response === 'accepted');
+        const respondedAttendees = acceptedAttendees.length;
+        const totalAttendees = attendees.length;
+
+        if (respondedAttendees === totalAttendees) {
+            return `Accepted ${respondedAttendees}`;
+        } else {
+            const didntRespond = totalAttendees - respondedAttendees;
+            return `Accepted ${respondedAttendees}, didn't respond ${didntRespond}`;
+        }
+    };
+
 
     return (
         <div style={{ width: '90vw', margin: 'auto' }}>
@@ -202,7 +228,7 @@ const OutlookCalendar: React.FC<OutlookCalendarProps> = ({ accessToken }) => {
                 dayMaxEvents={2}
                 eventClick={handleEventClick}
                 themeSystem='bootstrap5'
-                eventColor="#b1f1d2"
+                eventColor="#61a1fe"
             />
 
 
@@ -230,7 +256,8 @@ const OutlookCalendar: React.FC<OutlookCalendarProps> = ({ accessToken }) => {
                                             </>
                                         }
                                         <Divider />
-                                        <Text><InfoOutlineIcon mr={4} />You&rsquo;re the organizer.</Text>
+                                        <Text mb={0}><InfoOutlineIcon mr={4} />You&rsquo;re the organizer.</Text>
+                                        <Text ml={9} fontSize='sm'>{EventAttendees(clickedEventInfo?.event?._def?.extendedProps?.attendees)}</Text>
                                         <Divider />
                                         {clickedEventInfo.event._def.extendedProps.bodyPreview && (
                                             (() => {
@@ -318,7 +345,8 @@ const OutlookCalendar: React.FC<OutlookCalendarProps> = ({ accessToken }) => {
                                                 return null;
                                             })()
                                         )}
-                                        <Text mb={4}><InfoOutlineIcon mr={4} />{clickedEventInfo.event._def.extendedProps.organizer.emailAddress.name} invited you</Text>
+                                        <Text mb={0}><InfoOutlineIcon mr={4} />{clickedEventInfo.event._def.extendedProps.organizer.emailAddress.name} invited you</Text>
+                                        <Text ml={8} fontSize='sm' mb={4}>{calculateAttendeeStatus(clickedEventInfo?.event?._def?.extendedProps?.attendees)}</Text>
                                     </>
                                 )
                             }
@@ -331,5 +359,4 @@ const OutlookCalendar: React.FC<OutlookCalendarProps> = ({ accessToken }) => {
         </div>
     );
 }
-
 export default OutlookCalendar;

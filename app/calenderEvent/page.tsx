@@ -19,6 +19,7 @@ import {
   IconButton
 } from '@chakra-ui/react';
 import { DeleteIcon } from '@chakra-ui/icons';
+import { useRouter } from 'next/navigation';
 
 
 enum AttendeeType {
@@ -46,7 +47,7 @@ const CalendarEvent = () => {
   ]);
 
   const { data: session } = useSession()
-
+  const router = useRouter();
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
@@ -166,16 +167,15 @@ const CalendarEvent = () => {
           console.log('Meeting URL:', meetingUrl);
         }
         resetForm()
-        // Handle the meeting URL as needed
+        router.push('/calendar');
       } else {
         console.error('Failed to create event with description:', response.statusText);
-        // Handle error in creating the event
       }
     } catch (error) {
       console.error('Error creating event with description:', error);
       // Handle any other errors that might occur during the process
     }finally {
-      setIsLoading(false); // Disable loading state once event creation is complete
+      setIsLoading(false); 
     }
   };
 
