@@ -8,8 +8,8 @@ import 'moment-timezone';
 import 'bootstrap/dist/css/bootstrap.css';
 import 'bootstrap-icons/font/bootstrap-icons.css'
 import bootstrap5Plugin from '@fullcalendar/bootstrap5';
-import { EditIcon, SmallCloseIcon, ChatIcon, InfoOutlineIcon,ArrowRightIcon, DeleteIcon,TimeIcon, CalendarIcon } from '@chakra-ui/icons'
-import { Text, Modal, ModalOverlay, ModalContent, ModalHeader, Textarea, ModalBody, ModalCloseButton, Button, Heading, Divider } from '@chakra-ui/react';
+import { EditIcon, SmallCloseIcon, ChatIcon, InfoOutlineIcon, ArrowRightIcon, DeleteIcon, TimeIcon, CalendarIcon } from '@chakra-ui/icons'
+import { Text, Modal, ModalOverlay, ModalContent, ModalHeader, Flex, Textarea, ModalBody, ModalCloseButton, Button, Heading, Divider } from '@chakra-ui/react';
 
 
 interface CalendarEvent {
@@ -107,55 +107,6 @@ const OutlookCalendar: React.FC<OutlookCalendarProps> = ({ accessToken }) => {
         }
     }, []);
 
-    // const handleEventClick = (clickInfo: any) => {
-
-
-
-    //     // const eventId = clickInfo.event._def.extendedProps.eventId;
-    //     // const organizer = clickInfo.event._def.extendedProps.isOrganizer
-
-    //     const event = clickInfo.event._def.extendedProps;
-    //     setClickedEvent(event);
-    //     // const confirmCancellation = window.confirm("Do you want to cancel the event?");
-
-    //     // if (confirmCancellation) {
-    //     //     // Prompt for cancellation message
-    //     //     const cancelMessage = window.prompt("Please provide a cancellation message:");
-
-    //     //     // Check if cancelMessage is not null (user didn't cancel prompt)
-    //     //     if (cancelMessage !== null) {
-    //     //         // Make API call to cancel event
-    //     //         const url = `https://graph.microsoft.com/v1.0/me/events/${eventId}/cancel`;
-    //     //         const cancelAccessToken = accessToken; // Use a different variable name
-
-
-    //     //         fetch(url, {
-    //     //             method: 'POST',
-    //     //             headers: {
-    //     //                 'Authorization': `Bearer ${cancelAccessToken}`,
-    //     //                 'Content-Type': 'application/json'
-    //     //             },
-    //     //             body: JSON.stringify({ comment: cancelMessage })
-    //     //         })
-    //     //             .then(response => {
-    //     //                 if (response.ok) {
-    //     //                     console.log("Event cancellation successful!");
-    //     //                     const updatedEvents = events.filter(event => event.eventId !== eventId);
-    //     //                     setEvents(updatedEvents); // Update the state
-    //     //                 } else {
-    //     //                     console.error("Event cancellation failed:", response.statusText);
-    //     //                     // Handle failure, show error message, etc.
-    //     //                 }
-    //     //             })
-    //     //             .catch(error => {
-    //     //                 console.error("Error occurred during cancellation:", error);
-    //     //                 // Handle any other errors
-    //     //             });
-    //     //     }
-    //     // }
-    // };
-
-
     // Function to handle opening the modal and setting clicked event info
     const handleEventClick = (clickInfo: any) => {
         setClickedEventInfo(clickInfo);
@@ -221,8 +172,16 @@ const OutlookCalendar: React.FC<OutlookCalendarProps> = ({ accessToken }) => {
 
         return `${startDate} ${startTime} - ${endTime}`;
     }
-    const extractBodyContent = (bodyPreview: string) => {
-        return bodyPreview.split('___')[0];
+    const extractBodyContent = (bodyPreview:string) => {
+        // Split by '___' delimiter
+        const parts = bodyPreview.split('___');
+
+        // Check if there's a valid content before the URL
+        if (parts.length > 1) {
+            return parts[0]; // Return content before the URL
+        }
+
+        return bodyPreview; // Return the original preview if '___' is not found
     };
 
     return (
@@ -247,9 +206,9 @@ const OutlookCalendar: React.FC<OutlookCalendarProps> = ({ accessToken }) => {
             />
 
 
-            {/* Chakra UI Modal */}
+            {/* Modal */}
             {clickedEventInfo && (
-                <Modal isOpen={isModalOpen} onClose={handleCloseModal}>
+                <Modal isOpen={isModalOpen} onClose={handleCloseModal} isCentered>
                     <ModalOverlay />
                     <ModalContent>
                         <ModalHeader>{clickedEventInfo.event._def.extendedProps.title}</ModalHeader>
@@ -279,9 +238,12 @@ const OutlookCalendar: React.FC<OutlookCalendarProps> = ({ accessToken }) => {
                                                 if (extractedContent) {
                                                     return (
                                                         <>
-                                                            <Text>
-                                                                <ChatIcon mr={4} /> {extractedContent}
-                                                            </Text>
+                                                            <Flex align="start">
+                                                                <ChatIcon mr={4} mt={2} />
+                                                                <Text flex={1} overflow='auto'>
+                                                                    {extractedContent}
+                                                                </Text>
+                                                            </Flex>
                                                             <Divider />
                                                         </>
                                                     );
@@ -308,7 +270,7 @@ const OutlookCalendar: React.FC<OutlookCalendarProps> = ({ accessToken }) => {
                                                     colorScheme="blue"
                                                     color="black"
                                                     mr={3}
-                                                    leftIcon={<ArrowRightIcon  />}
+                                                    leftIcon={<ArrowRightIcon />}
                                                     onClick={() => {
                                                         cancelEventButton(clickedEventInfo.event._def.extendedProps.eventId);
                                                         setIsModalOpen(false);
@@ -343,9 +305,12 @@ const OutlookCalendar: React.FC<OutlookCalendarProps> = ({ accessToken }) => {
                                                 if (extractedContent) {
                                                     return (
                                                         <>
-                                                            <Text>
-                                                                <ChatIcon mr={4} /> {extractedContent}
-                                                            </Text>
+                                                            <Flex align="start" justifyContent='center'>
+                                                                <ChatIcon mr={4} mt={2} />
+                                                                <Text flex={1} overflow='auto'>
+                                                                    {extractedContent}
+                                                                </Text>
+                                                            </Flex>
                                                             <Divider />
                                                         </>
                                                     );
