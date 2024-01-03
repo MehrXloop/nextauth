@@ -1,36 +1,33 @@
-/* Basic styling for the event popover */
-.popover {
-    position: fixed;
-    top: 0;
-    left: 0;
-    transform: translate(-50%, -50%);
-    z-index: 1000;
-    background-color: #fff;
-    border: 1px solid #ccc;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    padding: 20px;
-    max-width: 300px;
+.fc-daygrid-dot-event .fc-event-title {
+  color: black;
+  flex-grow: 1;
+  flex-shrink: 1;
+  font-weight: 700;
+  min-width: 0px;
+  overflow: hidden;
 }
-
-.popover h5 {
-    margin-top: 0;
-    margin-bottom: 10px;
-    font-size: 18px;
-    color: #333;
+.fc-direction-ltr .fc-daygrid-event .fc-event-time {
+  color: black;
+  margin:0px 4px;
 }
-
-.popover button {
-    margin-right: 5px;
+.fc .fc-daygrid-event-harness {
+  position: relative;
+  background-color: #ade1ed;
+  margin-bottom: 5px;
+  margin-right: 7px;
+  border-radius: 5px;
 }
-
-.close-popover {
-    position: absolute;
-    top: 5px;
-    right: 10px;
-    font-size: 18px;
-    color: #333;
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 0;
+.fc .fc-daygrid-body-unbalanced .fc-daygrid-day-events {
+  /* background-color: #ade1ed; */
+  min-height: 2em;
+  position: relative;
+  /* margin-bottom: 10px; */
+}
+.fc-daygrid-event-dot {
+  border-left: 1px solid var(--fc-event-border-color); /* Use border-left to create a vertical line */
+  height: 10px; /* Adjust the height to make it look like a vertical line */
+  /* margin: 0px 4px; */
+  padding: 0;
+  margin: 0;
+  width: 0px; /* Set width to 0 to avoid creating a box shape */
 }

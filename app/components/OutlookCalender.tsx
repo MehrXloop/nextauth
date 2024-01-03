@@ -10,9 +10,10 @@ import 'bootstrap-icons/font/bootstrap-icons.css'
 import bootstrap5Plugin from '@fullcalendar/bootstrap5';
 import { EditIcon, SmallCloseIcon, ChatIcon, InfoOutlineIcon, ArrowRightIcon, DeleteIcon, TimeIcon, CalendarIcon } from '@chakra-ui/icons'
 import { Text, Modal, ModalOverlay, ModalContent, ModalHeader, Flex, Textarea, ModalBody, ModalCloseButton, Button, Heading, Divider } from '@chakra-ui/react';
+import EditEventForm from './EditEventForm';
 
 
-interface CalendarEvent {
+export interface CalendarEvent {
     eventId: string;
     isOrganizer: boolean;
     organizer: {
@@ -44,6 +45,7 @@ const OutlookCalendar: React.FC<OutlookCalendarProps> = ({ accessToken }) => {
     const [clickedEventInfo, setClickedEventInfo] = useState<any>(null);
     const [cancellationNote, setCancellationNote] = useState('');
     const [cancelMode, setCancelMode] = useState(false)
+    const [openEditForm, setOpenEditForm] = useState(false)
 
 
     const fetchEventsForMonth = async (start: Date, end: Date) => {
@@ -128,6 +130,16 @@ const OutlookCalendar: React.FC<OutlookCalendarProps> = ({ accessToken }) => {
     function cancelEvent() {
         setCancelMode(true)
     }
+
+    const updateCalendarEvents = (updatedEvent: CalendarEvent) => {
+        // Find and update the specific event in the events array
+        const updatedEvents = events.map((event) =>
+            event.eventId === updatedEvent.eventId ? updatedEvent : event
+        );
+        setEvents(updatedEvents);
+    };
+
+
     async function cancelEventButton(id: string) {
         const eventId = id;
         const url = `https://graph.microsoft.com/v1.0/me/events/${eventId}/cancel`;
@@ -162,16 +174,29 @@ const OutlookCalendar: React.FC<OutlookCalendarProps> = ({ accessToken }) => {
         window.open(url, '_blank');
     }
 
-    function editEvent(id: string) {
-        console.log('edit button clicked', id)
-    }
-
     function formatDateTime(start: any, end: any) {
-        const startDate = start.toLocaleDateString('en-US', { weekday: 'short', month: 'numeric', day: 'numeric', year: 'numeric' });
-        const startTime = start.toLocaleTimeString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true });
-        const endTime = end.toLocaleTimeString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true });
+        const startUTCDate = start.toLocaleDateString('en-US', {
+            timeZone: 'UTC',
+            weekday: 'short',
+            month: 'numeric',
+            day: 'numeric',
+            year: 'numeric'
+        });
+        const startUTCTime = start.toLocaleTimeString('en-US', {
+            timeZone: 'UTC',
+            hour: 'numeric',
+            minute: 'numeric',
+            hour12: true
+        });
 
-        return `${startDate} ${startTime} - ${endTime}`;
+        const endUTCTime = end.toLocaleTimeString('en-US', {
+            timeZone: 'UTC',
+            hour: 'numeric',
+            minute: 'numeric',
+            hour12: true
+        });
+
+        return `${startUTCDate} ${startUTCTime} - ${endUTCTime}`;
     }
 
     const extractBodyContent = (bodyPreview: string) => {
@@ -186,7 +211,7 @@ const OutlookCalendar: React.FC<OutlookCalendarProps> = ({ accessToken }) => {
         return bodyPreview; // Return the original preview if '___' is not found
     };
 
-    const EventAttendees = (attendees: any) => {
+    const EventAttendees = (attendees: string[]) => {
         const attendeesStatus = attendees.map((attendee: any) => {
             const status = attendee.status.response === 'accepted' ? 'accepted' : "didn't respond";
             return `${attendee.emailAddress.name} ${status}`;
@@ -196,7 +221,7 @@ const OutlookCalendar: React.FC<OutlookCalendarProps> = ({ accessToken }) => {
     }
 
 
-    const calculateAttendeeStatus = (attendees: any) => {
+    const calculateAttendeeStatus = (attendees: string[]) => {
         const acceptedAttendees = attendees.filter((attendee: any) => attendee.status.response === 'accepted');
         const respondedAttendees = acceptedAttendees.length;
         const totalAttendees = attendees.length;
@@ -279,7 +304,7 @@ const OutlookCalendar: React.FC<OutlookCalendarProps> = ({ accessToken }) => {
                                             })()
                                         )}
 
-                                        <Button ml={4} leftIcon={<EditIcon color='blue' />} mb={4} colorScheme='black' mr={4} variant='outline' onClick={() => editEvent(clickedEventInfo.event._def.extendedProps.eventId)}>
+                                        <Button ml={4} leftIcon={<EditIcon color='blue' />} mb={4} colorScheme='black' mr={4} variant='outline' onClick={() => setOpenEditForm(true)}>
                                             Edit Event
                                         </Button>
                                         <Button leftIcon={<SmallCloseIcon color='red' />} mb={4} colorScheme='black' variant='outline' onClick={() => cancelEvent()}>
@@ -354,6 +379,18 @@ const OutlookCalendar: React.FC<OutlookCalendarProps> = ({ accessToken }) => {
                         </ModalBody>
                     </ModalContent>
                 </Modal>
+            )}
+
+            {openEditForm && clickedEventInfo && (
+                <EditEventForm
+                    eventId={clickedEventInfo.event._def.extendedProps.eventId}
+                    eventData={clickedEventInfo.event}
+                    accessToken={accessToken}
+                    setOpenEditForm={setOpenEditForm}
+                    openEditForm={openEditForm}
+                    setIsModalOpen={setIsModalOpen}
+                    updateCalendar={updateCalendarEvents}
+                />
             )}
 
         </div>
